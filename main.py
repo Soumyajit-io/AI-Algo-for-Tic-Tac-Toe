@@ -1,9 +1,11 @@
 import random
 import os
 import time
-
+g_pos = False
 def sum (a,b,c): return a+b+c
-
+def clear_screen():
+   # os.system('cls')
+   pass
 def print_board(X,O):
    zero = 'X' if X[0] else ('O' if O[0] else "0")
    one = 'X' if X[1] else ('O' if O[1] else "1")
@@ -26,64 +28,123 @@ def checkWin(xState, zState):
     wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     for win in wins:
         if(sum(xState[win[0]], xState[win[1]], xState[win[2]]) == 3):
-            os.system('cls')
+            clear_screen()
             print_board(xState,zState)
             print("X Won the match")
             return 1
         if(sum(zState[win[0]], zState[win[1]], zState[win[2]]) == 3):
-            os.system('cls')
+            clear_screen()
             print_board(xState,zState)
             print("O Won the match")
             return 0
     return -1
 
-def ai_algo_X(X,O,moves):
-   print(len(moves))
-   
-   available_moves = {0,1,2,3,4,5,6,7,8}-moves
-   corner = [0,2,6,8]
-   edge = [1,3,5,7]
+def ai_algo_X(X,O,mov):
+   global g_pos
+   moves = set(mov)
+   total_moves= {0,1,2,3,4,5,6,7,8}
+   available_moves = total_moves -moves
+   corners = {0,2,6,8}
+   edges = {1,3,5,7}
    center = 4
-   if len(moves)==0 : # first move
-      return random.choice(corner)
-   elif(len(moves)==2) and center in moves:
-      pass
+   
+   if len(moves)==0 : # first move always corner 
+      return random.choice(list(corners)) 
+      # return 6 
+   
+   elif(len(moves)==2) and list(mov)[1]==center:# second move (if opponent choose center) 
+      print("second move (if opponent choose center)")
+      pre_corner_mov:int = mov[0]
+      mapping = {0: 8, 8: 0, 2: 6, 6:2}
+      return mapping.get(pre_corner_mov)
+   elif (len(moves)==2) and list(mov)[1] in edges : #second move (if opponent choose edge )
+      g_pos = True
+      print("second move (if opponent choose edge)")
+      pre_egde_mov = list(mov)[1]
+      pre_corner_mov = list(mov)[0]
+   
+      mapping_corners={
+         0 : (2,6),
+         2 : (0,8),
+         6: (0,8),
+         8: (2,6)
+      }
+      mapping_edges = {
+         1: (6,8),
+         3: (2,8),
+         5: (0,6),
+         7: (0,2)          
+      }
+      
+      cor = mapping_corners.get(pre_corner_mov)
+      print("corner: " ,cor)
+      egd = mapping_edges.get(pre_egde_mov)
+      print("edge: ", egd)
+
+      return list(set(cor) & set(egd))[0] 
+   elif (len(moves)==2) and list(mov)[1] in corners : # second move if opponent choose corner
+      print("second move (if opponent choose corner)")
+      print(list(moves)[0])
+      print(list(moves)[1])
+      pre_corner_move = list(moves)[0]
+      pre_corner_move2 = list(moves)[1]
+      mapping_corners={
+          0 : (2,6),
+          2 : (0,8),
+          6: (0,8),
+          8: (2,6)
+       }
+      cor = mapping_corners.get(pre_corner_move)
+      return cor[1] if cor[0] == pre_corner_move2 else cor[0]
 
    
+
+
+
    def defence_move(a_moves):
+      print("defence move called")
       wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
       for m in a_moves:
          for w in wins:
             if (sum(O[w[0]],O[w[1]], O[w[2]]) == 2) :
                if m in w:
-                  print("ai: ",m)
-                  return m
+                  print("defence move: ",m)
+                  return m+1
 
    def win_move(a_moves):
+      print("win move called")
       wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
       for m in a_moves:
          for w in wins:
             if (sum(X[w[0]],X[w[1]], X[w[2]]) == 2) :
                if m in w:
-                  print("ai: ",m)
-                  return m
+                  print("win move: ",m)
+                  return m+1
    
    
    
    mov =  win_move(available_moves) or defence_move(available_moves)
-   if mov : return mov 
-   else: return random.choice(list(available_moves))
+   if mov: return mov-1 
+   else: 
+      print("random move")
+      return random.choice(list(available_moves))
 
 def gameloop():
+   
+   #  game variables
    X =[0,0,0,0,0,0,0,0,0]
    O =[0,0,0,0,0,0,0,0,0]
    turn = 1
    delay = 2
-   moves =set()
+   moves =[]
+   move_helper ={"pos":int}
+
+
+
    print("Welcome to AI powered tic tak toe ")
    time.sleep(2)
    while(True):
-      os.system('cls')
+      clear_screen()
       print("Welcome to AI powered tic tak toe ")
       print_board(X,O)
       if len(moves)==9 :
@@ -92,20 +153,20 @@ def gameloop():
       if turn:
          print("X's turn: ")
          try:
-            player_inp = int(ai_algo_X(X,O,moves))
+            player_inp_x = ai_algo_X(X,O,moves)
             # player_inp = int(input("Enter your move: "))
-            print(player_inp)
+            print("ai:  ",player_inp_x)
          except ValueError  as e:
             print("Enter a valid move", e)
             time.sleep(delay)
             continue
-         if (player_inp<0 or player_inp>8): 
+         if (player_inp_x<0 or player_inp_x>8): 
             print("Invalid input")
             time.sleep(delay)
             continue
-         if player_inp not in moves :
-            moves.add(player_inp)
-            X[player_inp] =1
+         if player_inp_x not in moves :
+            moves.append(player_inp_x)
+            X[player_inp_x] =1
          else:
             print("Enter valid move")
             time.sleep(delay)
@@ -113,19 +174,19 @@ def gameloop():
       else:
          print("O's turn: ")
          try:
-            player_inp = int(input("Enter your move: "))
+            player_inp_o = int(input("Enter your move: "))
          except ValueError :
             print("Enter a valid move")
             time.sleep(delay)
             continue
 
-         if (player_inp<0 or player_inp>8): 
+         if (player_inp_o<0 or player_inp_o>8): 
             time.sleep(delay)
             print("Invalid input")
 
-         if player_inp not in moves :
-            moves.add(player_inp)
-            O[player_inp] =1
+         if player_inp_o not in moves :
+            moves.append(player_inp_o)
+            O[player_inp_o] =1
          else:
             print("Enter valid move")
             time.sleep(delay)
