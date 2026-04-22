@@ -27,25 +27,38 @@ def checkWin(xState, zState):
     for win in wins:
         if(sum(xState[win[0]], xState[win[1]], xState[win[2]]) == 3):
             os.system('cls')
-            print_board(X,O)
+            print_board(xState,zState)
             print("X Won the match")
             return 1
         if(sum(zState[win[0]], zState[win[1]], zState[win[2]]) == 3):
             os.system('cls')
-            print_board(X,O)
+            print_board(xState,zState)
             print("O Won the match")
             return 0
     return -1
 
 def ai_algo_X(X,O,moves):
+   print(len(moves))
    
    available_moves = {0,1,2,3,4,5,6,7,8}-moves
    corner = [0,2,6,8]
    edge = [1,3,5,7]
    center = 4
-   if any(X)==0 : # first move
+   if len(moves)==0 : # first move
       return random.choice(corner)
+   elif(len(moves)==2) and center in moves:
+      pass
+
    
+   def defence_move(a_moves):
+      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+      for m in a_moves:
+         for w in wins:
+            if (sum(O[w[0]],O[w[1]], O[w[2]]) == 2) :
+               if m in w:
+                  print("ai: ",m)
+                  return m
+
    def win_move(a_moves):
       wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
       for m in a_moves:
@@ -54,13 +67,12 @@ def ai_algo_X(X,O,moves):
                if m in w:
                   print("ai: ",m)
                   return m
-
    
    
    
-   mov = win_move(available_moves) 
+   mov =  win_move(available_moves) or defence_move(available_moves)
    if mov : return mov 
-   else: return 4
+   else: return random.choice(list(available_moves))
 
 def gameloop():
    X =[0,0,0,0,0,0,0,0,0]
@@ -80,8 +92,8 @@ def gameloop():
       if turn:
          print("X's turn: ")
          try:
-            # player_inp = int(ai_algo(X,O,moves))
-            player_inp = int(input("Enter your move: "))
+            player_inp = int(ai_algo_X(X,O,moves))
+            # player_inp = int(input("Enter your move: "))
             print(player_inp)
          except ValueError  as e:
             print("Enter a valid move", e)
