@@ -42,6 +42,53 @@ def checkWin(xState, zState):
             return 0
     return -1
 
+
+def ai_algo_O(X,O,mov):
+   # game variables
+   moves = set(mov)
+   total_moves= {0,1,2,3,4,5,6,7,8}
+   available_moves = total_moves -moves
+   corners = {0,2,6,8}
+   edges = {1,3,5,7}
+   center = 4
+    #  cheack if the opponent will win in the next move
+   def defence_move(a_moves):
+      print("defence move called")
+      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+      for m in a_moves:
+         for w in wins:
+            if (sum(O[w[0]],O[w[1]], O[w[2]]) == 2) :
+               if m in w:
+                  print("defence move: ",m)
+                  return m+1
+
+   #  cheack if we can win in the next move
+   def win_move(a_moves):
+      print("win move called")
+      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+      for m in a_moves:
+         for w in wins:
+            if (sum(X[w[0]],X[w[1]], X[w[2]]) == 2) :
+               if m in w:
+                  print("win move: ",m)
+                  return m+1
+   
+   
+   ad_move =  win_move(available_moves) or defence_move(available_moves)
+   if ad_move: return ad_move-1 
+
+   if len(mov)==1:
+      if 4 in available_moves :
+         print("middle move")
+         return 4 
+      else :
+         print("random move")
+         return random.choice(list(available_moves))
+   
+   
+   return random.choice(list(available_moves-corners))
+
+
 def ai_algo_X(X,O,mov):
 
    # game variables
@@ -178,7 +225,8 @@ def gameloop():
       # draw condition
       if len(moves)==9 :
          print("Draw\n")
-         if int(input("Do you want to continue (1/0)")):
+         # if int(input("Do you want to continue (1/0)")):
+         if 1 :
             X =[0,0,0,0,0,0,0,0,0]
             O =[0,0,0,0,0,0,0,0,0]
             turn = 1
@@ -197,7 +245,7 @@ def gameloop():
          # safe input 
          try:
             player_inp_x = ai_algo_X(X,O,moves)
-            # player_inp = int(input("Enter your move: "))
+            # player_inp_x = int(input("Enter your move: "))-1
             print("ai:  ",player_inp_x)
          except ValueError  as e:
             print("Enter a valid move", e)
@@ -222,7 +270,8 @@ def gameloop():
 
          # save input
          try:
-            player_inp_o = int(input("Enter your move: "))-1
+            # player_inp_o = int(input("Enter your move: "))-1
+            player_inp_o = ai_algo_O(O,X,moves)
          except ValueError :
             print("Enter a valid move")
             time.sleep(delay)
@@ -247,7 +296,8 @@ def gameloop():
 # =========== win checking ===============
       if(cwin != -1):
          print("Match over")
-         if int(input("Do you want to continue (1/0)")):
+         # if int(input("Do you want to continue (1/0)")):
+         if 1:
             X =[0,0,0,0,0,0,0,0,0]
             O =[0,0,0,0,0,0,0,0,0]
             turn = 0
