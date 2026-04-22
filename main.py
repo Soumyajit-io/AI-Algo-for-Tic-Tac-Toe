@@ -1,4 +1,6 @@
 import random
+import os
+import time
 
 def sum (a,b,c): return a+b+c
 
@@ -24,10 +26,12 @@ def checkWin(xState, zState):
     wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     for win in wins:
         if(sum(xState[win[0]], xState[win[1]], xState[win[2]]) == 3):
+            os.system('cls')
             print_board(X,O)
             print("X Won the match")
             return 1
         if(sum(zState[win[0]], zState[win[1]], zState[win[2]]) == 3):
+            os.system('cls')
             print_board(X,O)
             print("O Won the match")
             return 0
@@ -35,13 +39,17 @@ def checkWin(xState, zState):
 
 
 
-if __name__ == "__main__":
+def gameloop():
    X =[0,0,0,0,0,0,0,0,0]
    O =[0,0,0,0,0,0,0,0,0]
    turn = 1
+   delay = 2
    moves =set()
    print("Welcome to AI powered tic tak toe ")
+   time.sleep(2)
    while(True):
+      os.system('cls')
+      print("Welcome to AI powered tic tak toe ")
       print_board(X,O)
       if len(moves)==9 :
          print("Draw")
@@ -54,15 +62,18 @@ if __name__ == "__main__":
             print(player_inp)
          except ValueError  as e:
             print("Enter a valid move", e)
+            time.sleep(delay)
             continue
          if (player_inp<0 or player_inp>8): 
             print("Invalid input")
+            time.sleep(delay)
             continue
          if player_inp not in moves :
             moves.add(player_inp)
             X[player_inp] =1
          else:
             print("Enter valid move")
+            time.sleep(delay)
             continue
       else:
          print("O's turn: ")
@@ -70,9 +81,11 @@ if __name__ == "__main__":
             player_inp = int(input("Enter your move: "))
          except ValueError :
             print("Enter a valid move")
+            time.sleep(delay)
             continue
 
          if (player_inp<0 or player_inp>8): 
+            time.sleep(delay)
             print("Invalid input")
 
          if player_inp not in moves :
@@ -80,9 +93,11 @@ if __name__ == "__main__":
             O[player_inp] =1
          else:
             print("Enter valid move")
+            time.sleep(delay)
             continue
       cwin = checkWin(X,O)
       if(cwin != -1):
          print("Match over")
          break
       turn = not(turn)
+gameloop()
