@@ -1,11 +1,13 @@
 import random
 import os
 import time
-g_pos = False
+
 def sum (a,b,c): return a+b+c
+
 def clear_screen():
-   # os.system('cls')
-   pass
+   os.system('cls')
+   # pass
+
 def print_board(X,O):
    zero = 'X' if X[0] else ('O' if O[0] else "0")
    one = 'X' if X[1] else ('O' if O[1] else "1")
@@ -17,6 +19,7 @@ def print_board(X,O):
    seven = 'X' if X[7] else ('O' if O[7] else "7")
    eight = 'X' if X[8] else ('O' if O[8] else "8")
 
+   print('\n')
    print(f" {zero} | {one} | {two} ")
    print(f"---|---|---")
    print(f" {three} | {four} | {five} ")
@@ -40,7 +43,8 @@ def checkWin(xState, zState):
     return -1
 
 def ai_algo_X(X,O,mov):
-   global g_pos
+
+   # game variables
    moves = set(mov)
    total_moves= {0,1,2,3,4,5,6,7,8}
    available_moves = total_moves -moves
@@ -48,17 +52,24 @@ def ai_algo_X(X,O,mov):
    edges = {1,3,5,7}
    center = 4
    
-   if len(moves)==0 : # first move always corner 
+
+   # edge cases:
+
+   # first move always corner
+   if len(moves)==0 : 
       return random.choice(list(corners)) 
       # return 6 
    
-   elif(len(moves)==2) and list(mov)[1]==center:# second move (if opponent choose center) 
+   # second move if opponent choose center in the first move
+   elif(len(moves)==2) and list(mov)[1]==center:
       print("second move (if opponent choose center)")
       pre_corner_mov:int = mov[0]
       mapping = {0: 8, 8: 0, 2: 6, 6:2}
       return mapping.get(pre_corner_mov)
-   elif (len(moves)==2) and list(mov)[1] in edges : #second move (if opponent choose edge )
-      g_pos = True
+   
+   #second move if opponent choose edge in the first move
+   elif (len(moves)==2) and list(mov)[1] in edges :
+
       print("second move (if opponent choose edge)")
       pre_egde_mov = list(mov)[1]
       pre_corner_mov = list(mov)[0]
@@ -82,7 +93,10 @@ def ai_algo_X(X,O,mov):
       print("edge: ", egd)
 
       return list(set(cor) & set(egd))[0] 
-   elif (len(moves)==2) and list(mov)[1] in corners : # second move if opponent choose corner
+   
+
+   # second move if opponent choose corner in the first move
+   elif (len(moves)==2) and list(mov)[1] in corners : 
       print("second move (if opponent choose corner)")
       print(list(moves)[0])
       print(list(moves)[1])
@@ -97,10 +111,15 @@ def ai_algo_X(X,O,mov):
       cor = mapping_corners.get(pre_corner_move)
       return cor[1] if cor[0] == pre_corner_move2 else cor[0]
 
-   
+   # forth move if opponent choose corner or edge in the first move 
+   if (len(moves)==4) and not(4 in mov): 
+      print("edge case third move")
+      available_corner = list(available_moves & corners)
+      fst = mov[0]
+      mapping = {0: 8, 8: 0, 2: 6, 6:2}
+      return mapping.get(fst)
 
-
-
+   #  cheack if the opponent will win in the next move
    def defence_move(a_moves):
       print("defence move called")
       wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
@@ -111,6 +130,7 @@ def ai_algo_X(X,O,mov):
                   print("defence move: ",m)
                   return m+1
 
+   #  cheack if we can win in the next move
    def win_move(a_moves):
       print("win move called")
       wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
@@ -126,6 +146,7 @@ def ai_algo_X(X,O,mov):
    mov =  win_move(available_moves) or defence_move(available_moves)
    if mov: return mov-1 
    else: 
+      # if no edges cases choose random move
       print("random move")
       return random.choice(list(available_moves))
 
@@ -137,21 +158,41 @@ def gameloop():
    turn = 1
    delay = 2
    moves =[]
-   move_helper ={"pos":int}
+   
 
 
 
    print("Welcome to AI powered tic tak toe ")
    time.sleep(2)
+
+
+   #  game loop
    while(True):
       clear_screen()
       print("Welcome to AI powered tic tak toe ")
       print_board(X,O)
+
+
+      # draw condition
       if len(moves)==9 :
-         print("Draw")
-         break
+         print("Draw\n")
+         if int(input("Do you want to continue (1/0)")):
+            X =[0,0,0,0,0,0,0,0,0]
+            O =[0,0,0,0,0,0,0,0,0]
+            turn = 1
+            delay = 2
+            moves =[]
+            continue
+         else: 
+            break
+         
+
+
+      # =====player input =====
       if turn:
          print("X's turn: ")
+
+         # safe input 
          try:
             player_inp_x = ai_algo_X(X,O,moves)
             # player_inp = int(input("Enter your move: "))
@@ -164,6 +205,8 @@ def gameloop():
             print("Invalid input")
             time.sleep(delay)
             continue
+
+         # appending the move
          if player_inp_x not in moves :
             moves.append(player_inp_x)
             X[player_inp_x] =1
@@ -172,17 +215,21 @@ def gameloop():
             time.sleep(delay)
             continue
       else:
+
          print("O's turn: ")
+
+         # save input
          try:
             player_inp_o = int(input("Enter your move: "))
          except ValueError :
             print("Enter a valid move")
             time.sleep(delay)
             continue
-
          if (player_inp_o<0 or player_inp_o>8): 
             time.sleep(delay)
             print("Invalid input")
+
+
 
          if player_inp_o not in moves :
             moves.append(player_inp_o)
@@ -191,9 +238,22 @@ def gameloop():
             print("Enter valid move")
             time.sleep(delay)
             continue
+      
       cwin = checkWin(X,O)
+
+
+# =========== win checking ===============
       if(cwin != -1):
          print("Match over")
-         break
+         if int(input("Do you want to continue (1/0)")):
+            X =[0,0,0,0,0,0,0,0,0]
+            O =[0,0,0,0,0,0,0,0,0]
+            turn = 0
+            delay = 2
+            moves =[]
+         else: 
+            break
+
+
       turn = not(turn)
 gameloop()
