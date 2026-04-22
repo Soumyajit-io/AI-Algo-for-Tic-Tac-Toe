@@ -37,7 +37,30 @@ def checkWin(xState, zState):
             return 0
     return -1
 
+def ai_algo_X(X,O,moves):
+   
+   available_moves = {0,1,2,3,4,5,6,7,8}-moves
+   corner = [0,2,6,8]
+   edge = [1,3,5,7]
+   center = 4
+   if any(X)==0 : # first move
+      return random.choice(corner)
+   
+   def win_move(a_moves):
+      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+      for m in a_moves:
+         for w in wins:
+            if (sum(X[w[0]],X[w[1]], X[w[2]]) == 2) :
+               if m in w:
+                  print("ai: ",m)
+                  return m
 
+   
+   
+   
+   mov = win_move(available_moves) 
+   if mov : return mov 
+   else: return 4
 
 def gameloop():
    X =[0,0,0,0,0,0,0,0,0]
