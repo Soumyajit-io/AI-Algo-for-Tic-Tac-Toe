@@ -9,15 +9,15 @@ def clear_screen():
    # pass
 
 def print_board(X,O):
-   zero = 'X' if X[0] else ('O' if O[0] else "0")
-   one = 'X' if X[1] else ('O' if O[1] else "1")
-   two = 'X' if X[2] else ('O' if O[2] else "2")
-   three = 'X' if X[3] else ('O' if O[3] else "3")
-   four = 'X' if X[4] else ('O' if O[4] else "4")
-   five = 'X' if X[5] else ('O' if O[5] else "5")
-   six = 'X' if X[6] else ('O' if O[6] else "6")
-   seven = 'X' if X[7] else ('O' if O[7] else "7")
-   eight = 'X' if X[8] else ('O' if O[8] else "8")
+   zero = 'X' if X[0] else ('O' if O[0] else "1")
+   one = 'X' if X[1] else ('O' if O[1] else "2")
+   two = 'X' if X[2] else ('O' if O[2] else "3")
+   three = 'X' if X[3] else ('O' if O[3] else "4")
+   four = 'X' if X[4] else ('O' if O[4] else "5")
+   five = 'X' if X[5] else ('O' if O[5] else "6")
+   six = 'X' if X[6] else ('O' if O[6] else "7")
+   seven = 'X' if X[7] else ('O' if O[7] else "8")
+   eight = 'X' if X[8] else ('O' if O[8] else "9")
 
    print('\n')
    print(f" {zero} | {one} | {two} ")
@@ -52,6 +52,32 @@ def ai_algo_X(X,O,mov):
    edges = {1,3,5,7}
    center = 4
    
+   #  cheack if the opponent will win in the next move
+   def defence_move(a_moves):
+      print("defence move called")
+      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+      for m in a_moves:
+         for w in wins:
+            if (sum(O[w[0]],O[w[1]], O[w[2]]) == 2) :
+               if m in w:
+                  print("defence move: ",m)
+                  return m+1
+
+   #  cheack if we can win in the next move
+   def win_move(a_moves):
+      print("win move called")
+      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+      for m in a_moves:
+         for w in wins:
+            if (sum(X[w[0]],X[w[1]], X[w[2]]) == 2) :
+               if m in w:
+                  print("win move: ",m)
+                  return m+1
+   
+   
+   
+   ad_move =  win_move(available_moves) or defence_move(available_moves)
+   if ad_move: return ad_move-1 
 
    # edge cases:
 
@@ -119,36 +145,11 @@ def ai_algo_X(X,O,mov):
       mapping = {0: 8, 8: 0, 2: 6, 6:2}
       return mapping.get(fst)
 
-   #  cheack if the opponent will win in the next move
-   def defence_move(a_moves):
-      print("defence move called")
-      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
-      for m in a_moves:
-         for w in wins:
-            if (sum(O[w[0]],O[w[1]], O[w[2]]) == 2) :
-               if m in w:
-                  print("defence move: ",m)
-                  return m+1
-
-   #  cheack if we can win in the next move
-   def win_move(a_moves):
-      print("win move called")
-      wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
-      for m in a_moves:
-         for w in wins:
-            if (sum(X[w[0]],X[w[1]], X[w[2]]) == 2) :
-               if m in w:
-                  print("win move: ",m)
-                  return m+1
    
    
-   
-   mov =  win_move(available_moves) or defence_move(available_moves)
-   if mov: return mov-1 
-   else: 
-      # if no edges cases choose random move
-      print("random move")
-      return random.choice(list(available_moves))
+   # if no edges cases choose random move
+   print("random move")
+   return random.choice(list(available_moves))
 
 def gameloop():
    
@@ -168,6 +169,7 @@ def gameloop():
 
    #  game loop
    while(True):
+      time.sleep(1)
       clear_screen()
       print("Welcome to AI powered tic tak toe ")
       print_board(X,O)
@@ -220,7 +222,7 @@ def gameloop():
 
          # save input
          try:
-            player_inp_o = int(input("Enter your move: "))
+            player_inp_o = int(input("Enter your move: "))-1
          except ValueError :
             print("Enter a valid move")
             time.sleep(delay)
