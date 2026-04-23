@@ -1,7 +1,10 @@
 import random
 import os
 import time
-
+player_a_score = 0
+player_b_score = 0
+a_start = False
+b_start = False
 def sum (a,b,c): return a+b+c
 
 def clear_screen():
@@ -27,18 +30,36 @@ def print_board(X,O):
    print(f" {six} | {seven} | {eight} ")
    print('\n')
 
-def checkWin(xState, zState):
+def checkWin(pla_a, pla_b, xState:list, zState:list):
+    global player_a_score , player_b_score 
     wins = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+    
     for win in wins:
         if(sum(xState[win[0]], xState[win[1]], xState[win[2]]) == 3):
             clear_screen()
+
+            print(f"{pla_a}: {player_a_score}")
+            print(f"{pla_b}: {player_b_score}")   
             print_board(xState,zState)
+
             print("X Won the match")
+            if a_start :
+               player_a_score+=1
+            if b_start :
+               player_b_score=+1
             return 1
+        
         if(sum(zState[win[0]], zState[win[1]], zState[win[2]]) == 3):
             clear_screen()
+
+            print(f"{pla_a}: {player_a_score}")
+            print(f"{pla_b}: {player_b_score}")
             print_board(xState,zState)
             print("O Won the match")
+            if not a_start :
+               player_a_score+=1
+            if not b_start :
+               player_b_score=+1
             return 0
     return -1
 
@@ -198,7 +219,8 @@ def ai_algo_X(X,O,mov):
    print("random move")
    return random.choice(list(available_moves))
 
-def gameloop():
+def gameloop(no, pla_a,pla_b):
+   global a_start,b_start
    
    #  game variables
    X =[0,0,0,0,0,0,0,0,0]
@@ -210,43 +232,80 @@ def gameloop():
 
 
 
-   print("Welcome to AI powered tic tak toe ")
+   print("Welcome to Tic Tac Toe ")
    time.sleep(2)
-
-
+   
+   draw = 0
    #  game loop
    while(True):
+
+
       time.sleep(1)
       clear_screen()
-      print("Welcome to AI powered tic tak toe ")
-      print_board(X,O)
+      print("=== Welcome to Tic Tac Toe ===")
+      print("Score: ")
+      print(f"{pla_a}: {player_a_score}")
+      print(f"{pla_b}: {player_b_score}")
+      
+      if a_start: 
+         print(f"({pla_a} -> X, {pla_b} -> O)")
+      elif b_start:
+         print(f"({pla_b} -> X, {pla_a} -> O)")
+      
+      
 
+      # toss
+      if moves == [] and not (a_start or b_start):
+
+         print("=== Tossing a coin ===")
+         time.sleep(1)
+         
+         if random.random() < 0.5:
+            print(f"{pla_a} -> X")
+            print(f"{pla_b} -> O")
+            
+            a_start = True
+            b_start = False
+         else :
+            print(f"{pla_a} -> O")
+            print(f"{pla_b} -> X")
+            
+            a_start = False
+            b_start = True 
+      
+         time.sleep(1)
+
+      print_board(X,O)
 
       # draw condition
       if len(moves)==9 :
          print("Draw\n")
-         # if int(input("Do you want to continue (1/0)")):
-         if 1 :
+         if int(input("Do you want to continue (1/0)")):
+         # if 1 :
             X =[0,0,0,0,0,0,0,0,0]
             O =[0,0,0,0,0,0,0,0,0]
             turn = 1
             delay = 2
             moves =[]
+            a_start =False
+            b_start =False
             continue
          else: 
             break
-         
-
-
+        
+      
       # =====player input =====
       if turn:
          print("X's turn: ")
 
          # safe input 
          try:
-            player_inp_x = ai_algo_X(X,O,moves)
-            # player_inp_x = int(input("Enter your move: "))-1
-            print("ai:  ",player_inp_x)
+            
+            if a_start :
+               player_inp_x = ai_algo_X(X,O,moves)
+            else :
+               player_inp_x = int(input("Enter your move: "))-1
+            
          except ValueError  as e:
             print("Enter a valid move", e)
             time.sleep(delay)
@@ -270,8 +329,13 @@ def gameloop():
 
          # save input
          try:
-            # player_inp_o = int(input("Enter your move: "))-1
-            player_inp_o = ai_algo_O(O,X,moves)
+
+            if not b_start :
+               player_inp_o = int(input("Enter your move: "))-1
+            else:
+               player_inp_o = ai_algo_O(O,X,moves)
+
+
          except ValueError :
             print("Enter a valid move")
             time.sleep(delay)
@@ -290,22 +354,36 @@ def gameloop():
             time.sleep(delay)
             continue
       
-      cwin = checkWin(X,O)
+      cwin = checkWin(pla_a,pla_b, X,O)
 
 
 # =========== win checking ===============
       if(cwin != -1):
          print("Match over")
-         # if int(input("Do you want to continue (1/0)")):
-         if 1:
+         
+         if int(input("Do you want to continue (1/0)")):
+         # if 1:
             X =[0,0,0,0,0,0,0,0,0]
             O =[0,0,0,0,0,0,0,0,0]
             turn = 0
             delay = 2
             moves =[]
+            a_start =False
+            b_start =False
+            
          else: 
             break
 
 
       turn = not(turn)
-gameloop()
+
+def startGame():
+   global player_a_score,player_b_score , a_start,b_start
+   pla_a = 'AI'
+   pla_b = input("Enter player name: ")
+   gameloop(3,pla_a,pla_b)
+   print(f"=== Result ===")
+   print(f"{pla_a}: {player_a_score}")
+   print(f"{pla_b}: {player_b_score}")
+
+startGame()
